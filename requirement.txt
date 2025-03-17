@@ -1,0 +1,19 @@
+# Core dependencies
+python-dotenv==1.0.0
+chardet==5.2.0
+typing-extensions==4.9.0
+
+# For proper email handling
+email-validator==2.1.0.post1
+
+# Pretty terminal output (optional)
+# rich==13.7.0
+
+# Testing dependencies (optional)
+# pytest==7.4.3
+# pytest-cov==4.1.0
+
+# Development tools (optional)
+# black==24.1.1
+# flake8==6.1.0
+# mypy==1.7.1
