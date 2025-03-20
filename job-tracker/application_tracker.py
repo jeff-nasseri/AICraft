@@ -7,12 +7,14 @@ Prevents counting duplicate interviews from the same company
 import json
 import re
 import pandas as pd
+import argparse
+import sys
 from datetime import datetime
 from tabulate import tabulate
 from colorama import Fore, Style, init
 
 # Initialize colorama
-init()
+init(autoreset=True)
 
 def load_data(filename=None, mock_data=None):
     """Load job application data from a JSON file or use mock data"""
@@ -151,7 +153,7 @@ def analyze_emails(data):
     
     return applications
 
-def create_table(applications):
+def create_table(applications, no_color=False, export_file=None):
     """Create and display a tabulated table with the applications"""
     if not applications:
         print("No job applications found in the data.")
@@ -207,13 +209,16 @@ def create_table(applications):
     df = df.reset_index(drop=True)
     
     # Define colors
-    GREEN = Fore.GREEN
-    RED = Fore.RED
-    YELLOW = Fore.YELLOW
-    BLUE = Fore.BLUE
-    CYAN = Fore.CYAN
-    RESET = Style.RESET_ALL
-    BOLD = Style.BRIGHT
+    if no_color:
+        GREEN = RED = YELLOW = BLUE = CYAN = RESET = BOLD = ""
+    else:
+        GREEN = Fore.GREEN
+        RED = Fore.RED
+        YELLOW = Fore.YELLOW
+        BLUE = Fore.BLUE
+        CYAN = Fore.CYAN
+        RESET = Style.RESET_ALL
+        BOLD = Style.BRIGHT
     
     # Create a copy of the dataframe for display
     display_df = df.copy()
@@ -274,8 +279,47 @@ def create_table(applications):
         for company in sorted(interview_companies):
             print(f"- {BLUE}{company}{RESET}")
 
+    # Export to CSV if requested
+    if export_file:
+        try:
+            # Export the non-colored data
+            export_df = df.copy()
+            export_df.to_csv(export_file, index=False)
+            print(f"\nData exported successfully to {export_file}")
+        except Exception as e:
+            print(f"Error exporting to CSV: {e}")
+
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        description="Application Tracker - Analyze job application emails and display status"
+    )
+    parser.add_argument(
+        "--input", "-i", 
+        default="output.json",
+        help="Path to the input JSON file (default: output.json)"
+    )
+    parser.add_argument(
+        "--export", "-e",
+        help="Export results to CSV file"
+    )
+    parser.add_argument(
+        "--no-color", "-n",
+        action="store_true",
+        help="Disable color formatting in output"
+    )
+    parser.add_argument(
+        "--mock", "-m",
+        action="store_true",
+        help="Use mock data for demonstration"
+    )
+    return parser.parse_args()
+
 def main():
     """Main function to run the application tracker"""
+    # Parse command line arguments
+    args = parse_arguments()
+    
     # Mock data for testing
     mock_data = [
       {
@@ -359,21 +403,22 @@ def main():
     ]
     
     print("Loading job application data...")
-    # Try to load data from JSON file, fallback to mock data
-    try:
-        data = load_data(filename="output.json")
-        if not data:  # If file not found or empty, use mock data
-            print("Using mock data for demonstration...")
-            data = mock_data
-    except:
+    
+    # Determine data source based on arguments
+    if args.mock:
         print("Using mock data for demonstration...")
         data = mock_data
+    else:
+        data = load_data(filename=args.input)
+        if not data:
+            print("No data found. Use --mock for demonstration data.")
+            sys.exit(1)
     
     # Analyze emails and extract job application information
     applications = analyze_emails(data)
     
     # Create and display the table
-    create_table(applications)
+    create_table(applications, no_color=args.no_color, export_file=args.export)
 
 if __name__ == "__main__":
     main()

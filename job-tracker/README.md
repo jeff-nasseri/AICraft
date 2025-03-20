@@ -11,6 +11,7 @@ A command-line tool to analyze job application emails and display application st
 - Provides statistical summary of application status
 - Automatically extracts company names and job positions from emails
 - Works directly with MailHarvest's JSON output
+- Exports results to CSV for further analysis
 
 ## Installation
 
@@ -42,34 +43,51 @@ A command-line tool to analyze job application emails and display application st
 
 ## Usage
 
-### Basic Usage
+### Command Line Interface
 
-Run the application tracker with the default output file from MailHarvest:
+The Application Tracker provides a flexible command-line interface:
 
+```bash
+python application_tracker.py [options]
+```
+
+#### Available Options
+
+- `--input`, `-i`: Specify the input JSON file (default: output.json)
+- `--export`, `-e`: Export results to a CSV file
+- `--no-color`, `-n`: Disable color formatting in output
+- `--mock`, `-m`: Use built-in mock data for demonstration
+
+#### Examples
+
+Basic usage with default input file:
 ```bash
 python application_tracker.py
 ```
 
-This will look for `output.json` in the current directory and generate a tabulated report.
-
-### Advanced Usage
-
-Specify a different input file:
-
+Use a specific input file:
 ```bash
 python application_tracker.py --input my_emails.json
 ```
 
-Export the results to a CSV file:
-
+Export the results to CSV:
 ```bash
 python application_tracker.py --export results.csv
 ```
 
-Run without color formatting (useful for redirecting output):
+Use mock data for testing:
+```bash
+python application_tracker.py --mock
+```
 
+Disable color formatting (useful for redirecting output):
 ```bash
 python application_tracker.py --no-color
+```
+
+Combine multiple options:
+```bash
+python application_tracker.py --input emails.json --export report.csv --no-color
 ```
 
 ## Integration with MailHarvest
